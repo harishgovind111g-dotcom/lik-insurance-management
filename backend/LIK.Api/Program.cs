@@ -97,6 +97,9 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // ---------- Create the database and add sample data on first run ----------
+// If the database cannot be reached the API still starts, so the error can be seen at /api/health
+// and in the log, instead of the whole site going down.
+string dbStatus = "ok";
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -104,27 +107,19 @@ using (var scope = app.Services.CreateScope())
     {
         db.Database.EnsureCreated();
         DbSeeder.Seed(db);
+        Console.WriteLine("Database ready.");
     }
     catch (Exception ex)
     {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine();
-        Console.WriteLine("Could not connect to PostgreSQL.");
-        Console.WriteLine("1. Make sure PostgreSQL is installed and running (Windows: Services > postgresql-x64-...).");
-        Console.WriteLine("2. Check the password in the connection string in backend/LIK.Api/appsettings.json.");
-        Console.WriteLine($"Details: {ex.GetBaseException().Message}");
-        Console.ResetColor();
-        return;
+        dbStatus = ex.GetBaseException().Message;
+        Console.WriteLine("Could not connect to PostgreSQL: " + dbStatus);
+        Console.WriteLine("Check the connection string (appsettings.json, or App Service environment variables on Azure).");
     }
 }
 
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine("Database ready. API running at http://localhost:5080 (Swagger: http://localhost:5080/swagger)");
 var geminiKey = builder.Configuration["Gemini:ApiKey"];
-Console.WriteLine(string.IsNullOrWhiteSpace(geminiKey) || geminiKey == "Enter your API key here"
-    ? "Gemini chatbot: no API key yet. Add it in appsettings.json to turn on the chatbot."
-    : "Gemini chatbot: API key found.");
-Console.ResetColor();
+var geminiReady = !string.IsNullOrWhiteSpace(geminiKey) && geminiKey != "Enter your API key here";
+Console.WriteLine(geminiReady ? "Gemini chatbot: API key found." : "Gemini chatbot: no API key yet. Add it in appsettings.json to turn on the chatbot.");
 
 if (app.Environment.IsDevelopment())
 {
@@ -137,5 +132,8 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapGet("/", () => Results.Text("LIK Insurance API is running. Check /api/health"));
+app.MapGet("/api/health", () => Results.Ok(new { api = "ok", database = dbStatus, gemini = geminiReady ? "key set" : "no key" }));
 
 app.Run();
