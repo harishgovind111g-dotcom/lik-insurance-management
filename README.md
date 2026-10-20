@@ -124,9 +124,3 @@ Files uploaded with claims are saved in `backend/LIK.Api/uploads`.
 | PUT | /api/admin/plans/{id}/toggle | hide / show plan (admin) |
 | GET | /api/admin/users | all users (admin) |
 | POST | /api/assistant/chat | chatbot |
-
-## Common problems
-
-- **Cannot reach the API** - backend is not running, start it first.
-- **Could not connect to PostgreSQL** - PostgreSQL service is stopped or the password in appsettings.json is wrong.
-- **Chatbot says key not set or rejected** - check the Gemini key in appsettings.json and restart the backend.
