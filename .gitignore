@@ -1,0 +1,24 @@
+# .NET build output
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.rsuser
+*.log
+
+# Secrets (never commit your Gemini API key)
+appsettings.Local.json
+appsettings.Development.local.json
+.env
+.env.local
+
+# Node / React
+node_modules/
+dist/
+
+# Editor and OS files
+.vscode/
+.DS_Store
+Thumbs.db
+uploads/
