@@ -18,15 +18,24 @@ public class ClaimsController : ApiBase
 
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
 
-    public ClaimsController(AppDbContext db, IWebHostEnvironment env)
+    public ClaimsController(AppDbContext db, IWebHostEnvironment env, IConfiguration config)
     {
         _db = db;
         _env = env;
+        _config = config;
     }
 
-    /// <summary>Uploaded claim documents are saved in the "uploads" folder as claim-{id}.pdf / .jpg / .png.</summary>
-    private string UploadFolder => Path.Combine(_env.ContentRootPath, "uploads");
+    /// <summary>
+    /// Uploaded claim documents are saved as claim-{id}.pdf / .jpg / .png.
+    /// Default folder is "uploads" next to the app. On Azure set Uploads__Path to /home/uploads
+    /// so the files are not removed when the app is redeployed.
+    /// </summary>
+    private string UploadFolder =>
+        string.IsNullOrWhiteSpace(_config["Uploads:Path"])
+            ? Path.Combine(_env.ContentRootPath, "uploads")
+            : _config["Uploads:Path"]!;
 
     private string? FindDocument(int claimId) =>
         Directory.Exists(UploadFolder)

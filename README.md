@@ -124,3 +124,12 @@ Files uploaded with claims are saved in `backend/LIK.Api/uploads`.
 | PUT | /api/admin/plans/{id}/toggle | hide / show plan (admin) |
 | GET | /api/admin/users | all users (admin) |
 | POST | /api/assistant/chat | chatbot |
+
+## Deploying on Azure
+
+- Database: Azure Database for PostgreSQL Flexible Server
+- Backend: Azure App Service (Linux, .NET 8), deployed by `.github/workflows/backend.yml`
+- Frontend: Azure Static Web Apps (app location `/frontend`, output `dist`)
+
+App Service settings needed: `ConnectionStrings__DefaultConnection`, `Gemini__ApiKey` and `Uploads__Path=/home/uploads`.
+Before deploying the frontend, put your App Service URL in `frontend/.env.production`.
