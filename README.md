@@ -125,6 +125,22 @@ Files uploaded with claims are saved in `backend/LIK.Api/uploads`.
 | GET | /api/admin/users | all users (admin) |
 | POST | /api/assistant/chat | chatbot |
 
+## Unit testing
+
+**Backend (xUnit)** - tests are in `backend/LIK.Tests`. They use an in-memory database, so PostgreSQL is not needed.
+```
+cd backend
+dotnet test
+```
+They check registration and login rules, password hashing, applying for a plan, claim rules (amount, dates, own policy), admin approve/reject and plan editing.
+
+**Frontend (Vitest)** - tests are in `frontend/src/tests`.
+```
+cd frontend
+npm test
+```
+They check the money/date helper functions and some components (plan card, status badge).
+
 ## Deploying on Azure
 
 - Database: Azure Database for PostgreSQL Flexible Server
